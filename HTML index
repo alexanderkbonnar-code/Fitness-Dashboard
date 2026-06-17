@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Recomp Tracker</title>
+  <style>
+    :root{
+      --bg:#0f172a;
+      --panel:#111827;
+      --panel2:#1f2937;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --border:#334155;
+      --male:#38bdf8;
+      --female:#22c55e;
+      --accent:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:linear-gradient(180deg,#0b1220,#111827);
+      color:var(--text);
+      line-height:1.5;
+    }
+    .wrap{
+      width:min(1200px,95%);
+      margin:0 auto;
+      padding:20px 0 40px;
+    }
+    h1,h2,h3,h4{margin-top:0}
+    .card{
+      background:rgba(17,24,39,.95);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:18px;
+      margin-bottom:16px;
+    }
+    .tabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:16px;
+    }
+    .tab-btn{
+      border:1px solid var(--border);
+      background:#1e293b;
+      color:#fff;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    .tab-btn.active{
+      background:#334155;
+    }
+    .tab{
+      display:none;
+    }
+    .tab.active{
+      display:block;
+    }
+    details{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:12px;
+      background:rgba(15,23,42,.8);
+    }
+    summary{
+      cursor:pointer;
+      font-weight:700;
+    }
+    .grid{
+      display:grid;
+      gap:14px;
+    }
+    .grid-2{
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    }
+    .session{
+      border:1px solid #243041;
+      border-radius:12px;
+      padding:12px;
+      margin-top:10px;
+      background:rgba(17,24,39,.9);
+    }
+    .male{
+      border-left:4px solid var(--male);
+    }
+    .female{
+      border-left:4px solid var(--female);
+    }
+    label{
+      display:block;
+      margin:8px 0 4px;
+      color:#cbd5e1;
+      font-size:.95rem;
+    }
+    input, textarea, select{
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:#0f172a;
+      color:#fff;
+    }
+    textarea{
+      min-height:70px;
+      resize:vertical;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+      gap:10px;
+    }
+    .checkbox{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:8px 0;
+    }
+    .checkbox input{
+      width:auto;
+      transform:scale(1.2);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+    }
+    th,td{
+      border:1px solid var(--border);
+      padding:8px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{background:#0f2138}
+    .small{font-size:.92rem;color:var(--muted)}
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      margin-right:6px;
+      margin-bottom:6px;
+      font-size:.9rem;
+    }
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    button.action{
+      background:#1d4ed8;
+      color:#fff;
+      border:none;
+      padding:10px 14px;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    button.secondary{
+      background:#475569;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Interactive 12-Week Recomp Tracker</h1>
+      <p class="small">This file auto-saves in your browser on this device. Best used on one main device unless you manually keep copies in sync.</p>
+      <div>
+        <span class="pill">Auto-save enabled</span>
+        <span class="pill">Male and female tabs</span>
+        <span class="pill">Weekly check-ins</span>
+        <span class="pill">Workout logging</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="openTab('home', this)">Home</button>
+      <button class="tab-btn" onclick="openTab('male', this)">Male Plan</button>
+      <button class="tab-btn" onclick="openTab('female', this)">Female Plan</button>
+      <button class="tab-btn" onclick="openTab('nutrition', this)">Nutrition</button>
+      <button class="tab-btn" onclick="openTab('checkin', this)">Check-In</button>
+      <button class="tab-btn" onclick="openTab('notes', this)">Notes</button>
+    </div>
+
+    <div id="home" class="tab active">
+      <div class="grid grid-2">
+        <div class="card">
+          <h2>Weekly Structure</h2>
+          <table>
+            <tr><th>Day</th><th>Male</th><th>Female</th></tr>
+            <tr><td>Monday</td><td>Strength A</td><td>Strength A</td></tr>
+            <tr><td>Tuesday</td><td>VO2 intervals</td><td>Strength B + Rope</td></tr>
+            <tr><td>Wednesday</td><td>Mobility / Walk</td><td>Mobility / Walk</td></tr>
+            <tr><td>Thursday</td><td>Strength B</td><td>Strength C</td></tr>
+            <tr><td>Friday</td><td>Zone 2</td><td>Trail Conditioning</td></tr>
+            <tr><td>Saturday</td><td>Strength C + Rope</td><td>Strength D</td></tr>
+            <tr><td>Sunday</td><td>Pilates / Mobility</td><td>Pilates / Mobility</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h2>Quick Weekly Dashboard</h2>
+          <div class="row">
+            <div>
+              <label>Current Week</label>
+              <input data-save="currentWeek" type="number" min="1" max="12" placeholder="1-12">
+            </div>
+            <div>
+              <label>Male completion %</label>
+              <input data-save="maleCompletion" type="text" placeholder="e.g. 85%">
+            </div>
+            <div>
+              <label>Female completion %</label>
+              <input data-save="femaleCompletion" type="text" placeholder="e.g. 90%">
+            </div>
+            <div>
+              <label>Shared focus this week</label>
+              <input data-save="weeklyFocus" type="text" placeholder="Sleep, protein, consistency">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="male" class="tab">
+      <div class="card">
+        <h2>Male Programme</h2>
+        <p class="small">Goal: fat loss, muscle gain, better body composition, better VO2 max, improved 5k and aerobic fitness.</p>
+      </div>
+
+      <details open>
+        <summary>Male Week 1</summary>
+
+        <div class="session male">
+          <h3>Monday - Strength A</h3>
+          <div class="checkbox"><input data-save="m_w1_mon_done" type="checkbox"><span>Session completed</span></div>
+          <p>Squat 4 x 8, RDL 4 x 10, Floor Press 4 x 10, 1-arm Row 4 x 12/side, RFESS 3 x 10/leg, Suitcase March 3 x 45 sec/side, Core 3 rounds</p>
+          <div class="row">
+            <div><label>Top squat load</label><input data-save="m_w1_mon_squat" type="text"></div>
+            <div><label>Top RDL load</label><input data-save="m_w1_mon_rdl" type="text"></div>
+            <div><label>Session RPE</label><input data-save="m_w1_mon_rpe" type="text"></div>
+          </div>
+          <label>Notes</label>
+          <textarea data-save="m_w1_mon_notes"></textarea>
+        </div>
+
+        <div class="session male">
+          <h3>Tuesday - VO2 Intervals</h3>
+          <div class="checkbox"><input data-save="m_w1_tue_done" type="checkbox"><span>Session completed</span></div>
+          <p>6 x 1 min hard / 2 min easy</p>
+          <div class="row">
+            <div><label>Total time</label><input data-save="m_w1_tue_time" type="text"></div>
+            <div><label>Average pace</label><input data-save="m_w1_tue_pace" type="text"></div>
+            <div><label>RPE</label><input data-save="m_w1_tue_rpe" type="text"></div>
+          </div>
+        </div>
+
+        <div class="session male">
+          <h3>Thursday - Strength B</h3>
+          <div class="checkbox"><input data-save="m_w1_thu_done" type="checkbox"><span>Session completed</span></div>
+          <p>Deadlift/RDL 4 x 8, OHP 4 x 8, Inverted Row 4 x 10, Goblet Squat 3 x 10, Push-up 3 x 12, Arms, Hollow Hold</p>
+          <div class="row">
+            <div><label>Top deadlift/RDL load</label><input data-save="m_w1_thu_dl" type="text"></div>
+            <div><label>Top OHP load</label><input data-save="m_w1_thu_ohp" type="text"></div>
+            <div><label>Session RPE</label><input data-save="m_w1_thu_rpe" type="text"></div>
+          </div>
+          <label>Notes</label>
+          <textarea data-save="m_w1_thu_notes"></textarea>
+        </div>
+
+        <div class="session male">
+          <h3>Friday - Zone 2</h3>
+          <div class="checkbox"><input data-save="m_w1_fri_done" type="checkbox"><span>Session completed</span></div>
+          <p>35 min conversational run or cycle</p>
+          <div class="row">
+            <div><label>Duration</label><input data-save="m_w1_fri_duration" type="text"></div>
+            <div><label>Distance</label><input data-save="m_w1_fri_distance" type="text"></div>
+            <div><label>RPE</label><input data-save="m_w1_fri_rpe" type="text"></div>
+          </div>
+        </div>
+
+        <div class="session male">
+          <h3>Saturday - Strength C</h3>
+          <div class="checkbox"><input data-save="m_w1_sat_done" type="checkbox"><span>Session completed</span></div>
+          <p>Bulgarian Split Squat 4 x 8/leg, Hip Thrust 4 x 12, Row 3 x 12, DB Press Drop Set, Lateral Raise, Rope Finisher, Plank</p>
+          <div class="row">
+            <div><label>Top split squat load</label><input data-save="m_w1_sat_bss" type="text"></div>
+            <div><label>Top hip thrust load</label><input data-save="m_w1_sat_ht" type="text"></div>
+            <div><label>Session RPE</label><input data-save="m_w1_sat_rpe" type="text"></div>
+          </div>
+          <label>Notes</label>
+          <textarea data-save="m_w1_sat_notes"></textarea>
+        </div>
+      </details>
+
+      <details>
+        <summary>Male Weeks 2-12 Progression</summary>
+        <p>Week 2: add 1-2 reps where possible, VO2 7 x 1 min hard / 2 min easy, Z2 40 min.</p>
+        <p>Week 3: push top sets to RPE 8, VO2 8 x 1 min hard / 90 sec easy, Z2 45 min.</p>
+        <p>Week 4: deload, halve sets, VO2 5 x 1 min hard / 2 min easy, Z2 30-35 min.</p>
+        <p>Week 5: compounds shift toward 6-8 or 8-10 rep ranges, VO2 5 x 2 min hard / 2 min easy, Z2 45 min.</p>
+        <p>Week 6: 6 x 2 min hard / 2 min easy, Z2 50 min.</p>
+        <p>Week 7: 6 x 2 min hard / 90 sec easy, Z2 50 min.</p>
+        <p>Week 8: deload, 4 x 2 min hard / 2 min easy, Z2 35-40 min.</p>
+        <p>Week 9: 4 x 3 min hard / 2 min easy, Z2 50 min.</p>
+        <p>Week 10: 5 x 3 min hard / 2 min easy, Z2 55 min.</p>
+        <p>Week 11: 5 x 3 min hard / 90 sec easy, Z2 60 min.</p>
+        <p>Week 12: deload + benchmark, 3 x 3 min hard / 2 min easy, optional 5k test.</p>
+      </details>
+    </div>
+
+    <div id="female" class="tab">
+      <div class="card">
+        <h2>Female Programme</h2>
+        <p class="small">Goal: fat loss, strength, muscle gain, major glute emphasis, trail-friendly conditioning.</p>
+      </div>
+
+      <details open>
+        <summary>Female Week 1</summary>
+
+        <div class="session female">
+          <h3>Monday - Strength A</h3>
+          <div class="checkbox"><input data-save="f_w1_mon_done" type="checkbox"><span>Session completed</span></div>
+          <p>Back Squat 4 x 8, Hip Thrust 5 x 10, Bulgarian Split Squat 3 x 10/leg, DB RDL 3 x 12, Glute Med Work, Side Plank</p>
+          <div class="row">
+            <div><label>Top squat load</label><input data-save="f_w1_mon_squat" type="text"></div>
+            <div><label>Top hip thrust load</label><input data-save="f_w1_mon_ht" type="text"></div>
+            <div><label>Session RPE</label><input data-save="f_w1_mon_rpe" type="text"></div>
+          </div>
+          <label>Notes</label>
+          <textarea data-save="f_w1_mon_notes"></textarea>
+        </div>
+
+        <div class="session female">
+          <h3>Tuesday - Strength B + Rope</h3>
+          <div class="checkbox"><input data-save="f_w1_tue_done" type="checkbox"><span>Session completed</span></div>
+          <p>Glute Bridge 4 x 12, SL RDL 3 x 10/leg, Step-up 3 x 10/leg, Frog Pumps 3 x 20, Donkey Kicks, Rope 6 x 30 sec on / 60 sec off</p>
+          <div class="row">
+            <div><label>Top bridge load</label><input data-save="f_w1_tue_bridge" type="text"></div>
+            <div><label>Rope rounds done</label><input data-save="f_w1_tue_rope" type="text"></div>
+            <div><label>Session RPE</label><input data-save="f_w1_tue_rpe" type="text"></div>
+          </div>
+        </div>
+
+        <div class="session female">
+          <h3>Thursday - Strength C</h3>
+          <div class="checkbox"><input data-save="f_w1_thu_done" type="checkbox"><span>Session completed</span></div>
+          <p>OHP 4 x 10, 1-arm Row 4 x 12/side, Goblet Squat 3 x 10, Floor Press 3 x 10, Reverse Lunge 3 x 10/leg, Lateral Raise, Dead Bug</p>
+          <div class="row">
+            <div><label>Top OHP load</label><input data-save="f_w1_thu_ohp" type="text"></div>
+            <div><label>Top row load</label><input data-save="f_w1_thu_row" type="text"></div>
+            <div><label>Session RPE</label><input data-save="f_w1_thu_rpe" type="text"></div>
+          </div>
+        </div>
+
+        <div class="session female">
+          <h3>Friday - Trail Conditioning</h3>
+          <div class="checkbox"><input data-save="f_w1_fri_done" type="checkbox"><span>Session completed</span></div>
+          <p>30 min brisk trail walk</p>
+          <div class="row">
+            <div><label>Duration</label><input data-save="f_w1_fri_duration" type="text"></div>
+            <div><label>Distance</label><input data-save="f_w1_fri_distance" type="text"></div>
+            <div><label>RPE</label><input data-save="f_w1_fri_rpe" type="text"></div>
+          </div>
+        </div>
+
+        <div class="session female">
+          <h3>Saturday - Strength D</h3>
+          <div class="checkbox"><input data-save="f_w1_sat_done" type="checkbox"><span>Session completed</span></div>
+          <p>RDL 4 x 10, Hip Thrust Mechanical Set, FFESS 3 x 10/leg, Push-up, Row, Glute Burnout Circuit</p>
+          <div class="row">
+            <div><label>Top RDL load</label><input data-save="f_w1_sat_rdl" type="text"></div>
+            <div><label>Top hip thrust load</label><input data-save="f_w1_sat_ht" type="text"></div>
+            <div><label>Session RPE</label><input data-save="f_w1_sat_rpe" type="text"></div>
+          </div>
+          <label>Notes</label>
+          <textarea data-save="f_w1_sat_notes"></textarea>
+        </div>
+      </details>
+
+      <details>
+        <summary>Female Weeks 2-12 Progression</summary>
+        <p>Week 2: add 1-2 reps where possible, trail 35 min brisk walk + 4 x 30 sec uphill pushes.</p>
+        <p>Week 3: optional extra hip thrust set if recovery is good, rope 8 x 30 sec on / 45 sec off, trail 40 min walk + hill pushes.</p>
+        <p>Week 4: deload, halve sets, rope 4-5 easy rounds, trail 30 min easy walk.</p>
+        <p>Week 5: run/walk begins, 1 min jog / 3 min walk x 8, rope 8 x 40/40.</p>
+        <p>Week 6: 90 sec jog / 3 min walk.</p>
+        <p>Week 7: 2 min jog / 3 min walk.</p>
+        <p>Week 8: deload week, easy trail walk only.</p>
+        <p>Week 9: 3 min jog / 2 min walk, rope 8 x 45/30.</p>
+        <p>Week 10: 4 min jog / 2 min walk.</p>
+        <p>Week 11: 5 min jog / 2 min walk, rope 10 x 45/30.</p>
+        <p>Week 12: deload + benchmark trail session.</p>
+      </details>
+    </div>
+
+    <div id="nutrition" class="tab">
+      <div class="grid grid-2">
+        <div class="card">
+          <h2>Male Nutrition</h2>
+          <ul>
+            <li>Calories: 2250</li>
+            <li>Protein: 145 g</li>
+            <li>Carbs: 265 g</li>
+            <li>Fat: 65 g</li>
+            <li>Fibre: 35-50 g</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>Female Nutrition</h2>
+          <ul>
+            <li>Calories: 2000</li>
+            <li>Protein: 140 g</li>
+            <li>Carbs: 210 g</li>
+            <li>Fat: 65 g</li>
+            <li>Fibre: 30-45 g</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Daily Nutrition Checklist</h2>
+        <div class="row">
+          <div><label>Male protein hit?</label><select data-save="nut_m_protein"><option></option><option>Yes</option><option>No</option></select></div>
+          <div><label>Female protein hit?</label><select data-save="nut_f_protein"><option></option><option>Yes</option><option>No</option></select></div>
+          <div><label>Meal prep done?</label><select data-save="nut_mealprep"><option></option><option>Yes</option><option>No</option></select></div>
+          <div><label>Supplements taken?</label><select data-save="nut_supps"><option></option><option>Yes</option><option>No</option></select></div>
+        </div>
+        <label>Nutrition notes</label>
+        <textarea data-save="nutrition_notes"></textarea>
+      </div>
+    </div>
+
+    <div id="checkin" class="tab">
+      <div class="card">
+        <h2>Weekly Check-In</h2>
+        <div class="grid grid-2">
+          <div>
+            <h3>Male</h3>
+            <div class="row">
+              <div><label>Average weight</label><input data-save="check_m_weight" type="text"></div>
+              <div><label>Waist</label><input data-save="check_m_waist" type="text"></div>
+              <div><label>Sleep hrs avg</label><input data-save="check_m_sleep_hours" type="text"></div>
+              <div><label>Sleep quality /5</label><input data-save="check_m_sleep_quality" type="text"></div>
+              <div><label>Stress /5</label><input data-save="check_m_stress" type="text"></div>
+              <div><label>5k / interval marker</label><input data-save="check_m_run" type="text"></div>
+            </div>
+          </div>
+          <div>
+            <h3>Female</h3>
+            <div class="row">
+              <div><label>Average weight</label><input data-save="check_f_weight" type="text"></div>
+              <div><label>Waist</label><input data-save="check_f_waist" type="text"></div>
+              <div><label>Hips/glutes</label><input data-save="check_f_glutes" type="text"></div>
+              <div><label>Sleep hrs avg</label><input data-save="check_f_sleep_hours" type="text"></div>
+              <div><label>Sleep quality /5</label><input data-save="check_f_sleep_quality" type="text"></div>
+              <div><label>Stress /5</label><input data-save="check_f_stress" type="text"></div>
+            </div>
+          </div>
+        </div>
+        <label>Shared weekly notes</label>
+        <textarea data-save="check_shared_notes"></textarea>
+      </div>
+    </div>
+
+    <div id="notes" class="tab">
+      <div class="card">
+        <h2>General Notes</h2>
+        <label>Anything you want to remember this week</label>
+        <textarea data-save="general_notes"></textarea>
+
+        <div class="actions">
+          <button class="action" onclick="exportData()">Export saved data</button>
+          <button class="action secondary" onclick="clearData()">Clear all saved data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openTab(id, btn){
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function saveField(el){
+      const key = el.getAttribute('data-save');
+      if(!key) return;
+      const value = el.type === 'checkbox' ? el.checked : el.value;
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function loadFields(){
+      document.querySelectorAll('[data-save]').forEach(el => {
+        const key = el.getAttribute('data-save');
+        const saved = localStorage.getItem(key);
+        if(saved !== null){
+          const value = JSON.parse(saved);
+          if(el.type === 'checkbox'){
+            el.checked = value;
+          } else {
+            el.value = value;
+          }
+        }
+        el.addEventListener('input', () => saveField(el));
+        el.addEventListener('change', () => saveField(el));
+      });
+    }
+
+    function exportData(){
+      const data = {};
+      for(let i=0;i<localStorage.length;i++){
+        const key = localStorage.key(i);
+        data[key] = JSON.parse(localStorage.getItem(key));
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'recomp-tracker-backup.json';
+      a.click();
+    }
+
+    function clearData(){
+      if(confirm('Clear all saved tracker data from this browser?')){
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    loadFields();
+  </script>
+</body>
+</html>
